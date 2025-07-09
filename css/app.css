@@ -28,6 +28,7 @@ body {
   object-fit: cover;
   z-index: -1;
   pointer-events: none;
+  filter: brightness(50%); /* clean 50% dark look */
 }
 
 #leftsvg,
