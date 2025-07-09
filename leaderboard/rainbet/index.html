@@ -308,6 +308,22 @@
                             </svg>
                             RULES
                         </button>
+<button id="prevLeaderboardBtn" class="prev-lb-btn" style="margin-left: 12px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l2 2h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"></path>
+    </svg>
+    PREVIOUS LEADERBOARD
+</button>
+
+<button id="currentLeaderboardBtn" class="prev-lb-btn"
+    style="margin-left: 12px; display: none; background: #22c55e;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12h18M3 6h18M3 18h18"></path>
+    </svg>
+    CURRENT LEADERBOARD
+</button>
                     </div>
                 </span>
 <div class="css-esk2ah">
@@ -318,7 +334,7 @@
     </div>
 
     <!-- Countdown Timer -->
-    <div class="countdown">
+    <div class="countdown" id="countdownWrapper">
       <div>
         <span class="title"><span class="glow" style="color: #FFF">ENDING</span> IN </span>
         <span class="subtitle" id="countdown">X Days XX:XX:XX</span>
@@ -436,7 +452,8 @@
 <script src="/js/particles.js"></script>
 <script src="/js/toast.js"></script>
 <script>
-const API_URL = 'https://zomanexdata.onrender.com/leaderboard/top14';
+const CURRENT_API_URL = 'https://zomanexdata.onrender.com/leaderboard/top14';
+const PREVIOUS_API_URL = 'https://zomanexdata.onrender.com/leaderboard/prev';
 const roobetLogo = '/assets/rainbetlogo.png';
 const rewards = [100, 250, 75, 50, 25];
 const top3Glows = ['0 0 40px #C0C0C0', '0 0 40px #FFD700', '0 0 40px #CD7F32'];
@@ -470,16 +487,21 @@ function updateCountdown() {
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-async function loadLeaderboard() {
-  const res = await fetch(API_URL);
+async function loadLeaderboard(apiURL = CURRENT_API_URL) {
+  const res = await fetch(apiURL);
   const data = await res.json();
   const top3Container = document.querySelector(".css-gqrafh");
   const rowsContainer = document.getElementById("leaderboard-rows");
+  top3Container.innerHTML = '';
+  rowsContainer.innerHTML = '';
 
   data.forEach((entry, index) => {
     const place = index + 1;
     const reward = index < rewards.length ? `$ ${rewards[index]}` : '$ 0';
-    const wagered = `$ ${Number(entry.wagered).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const wagered = `$ ${Number(entry.wagered).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
     const username = entry.username;
 
     if (index < 3) {
@@ -515,10 +537,37 @@ async function loadLeaderboard() {
           <div class="price-wrapper" style="color: #FFF; font-weight:bold; font-size: 15px;">${wagered}</div>
         </div>
       `;
-      rowsContainer.appendChild(row);
+      const wrapper = document.createElement("div");
+      wrapper.className = "leaderboard-row-wrapper";
+      wrapper.appendChild(row);
+      rowsContainer.appendChild(wrapper);
     }
   });
 }
 
+const prevBtn = document.getElementById("prevLeaderboardBtn");
+const currBtn = document.getElementById("currentLeaderboardBtn");
+const countdownWrapper = document.getElementById("countdownWrapper");
+
+// 🔁 Toggle between current and previous
+prevBtn?.addEventListener("click", () => {
+  loadLeaderboard(PREVIOUS_API_URL);
+  prevBtn.style.display = "none";
+  currBtn.style.display = "inline-flex";
+  countdownWrapper.style.visibility = "hidden";
+  countdownWrapper.style.height = "0";
+  countdownWrapper.style.overflow = "hidden";
+});
+
+currBtn?.addEventListener("click", () => {
+  loadLeaderboard(CURRENT_API_URL);
+  currBtn.style.display = "none";
+  prevBtn.style.display = "inline-flex";
+  countdownWrapper.style.visibility = "visible";
+  countdownWrapper.style.height = "auto";
+  countdownWrapper.style.overflow = "visible";
+});
+
+// ✅ Initial load
 loadLeaderboard();
 </script>
