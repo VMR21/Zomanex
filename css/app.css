@@ -14,27 +14,22 @@ html, body {
 }
 
 body {
-  background-image: url("/assets/image.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: scroll;
+  margin: 0;
   position: relative;
   z-index: 0;
 }
 
-/* Full-page dark overlay that scrolls with the content */
-body::before {
-  content: "";
+#bg-video {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: -1;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.4); /* darkness level */
-  z-index: -1;
+  object-fit: cover;
   pointer-events: none;
 }
+
 
 /* Content stays above overlay */
 body * {
